@@ -21,7 +21,7 @@ import { verifyUser } from "../middleware/auth.middleware.js";
 router.post("/register", register);
 router.get("/verify-email/:token", verifyEmail);
 router.post("/login", loginUser);
-router.get("/logout", verifyUser, logoutUser);
+router.post("/logout", verifyUser, logoutUser);
 router.post("/resendVerifyEmail", resendEmailVerification);
 router.post("/forgotPassword/request", forgotPasswordRequest);
 router.post("/resetForgotPassword/:token", resetForgottenPassword);

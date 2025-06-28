@@ -1,8 +1,8 @@
 import React from 'react'
 import {Routes, Route, Navigate} from "react-router-dom";
-import HomePage from "./page/HomePage.jsx";
-import LoginPage from "./page/LoginPage.jsx";
-import SignUpPage from "./page/SignUpPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import LoginPage from "./pages/LoginPage.jsx";
+import SignUpPage from "./pages/SignUpPage.jsx";
 
 const App = () => {
 
