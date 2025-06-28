@@ -1,10 +1,13 @@
-import { db } from "../db";
-import { validId } from "../helper/validId.helper";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { asyncHandler } from "../utils/asynHandler";
-import { handleZodError } from "../utils/handleZodError";
-import { createPlaylistValidation } from "../validators/playlist.validation";
+import { db } from "../libs/db.js";
+// import { validId } from "../helper/validId.helper";
+import {
+  ApiError,
+  ApiResponse,
+  asyncHandler,
+  handleZodError,
+} from "../utils/index.js";
+
+import { createPlaylistValidation } from "../validator/playlist.validation.js";
 
 const getAllPrivatePlaylistDetails = asyncHandler(async (req, res) => {
   const userId = req.user.id;
@@ -22,7 +25,7 @@ const getAllPrivatePlaylistDetails = asyncHandler(async (req, res) => {
       },
       user: {
         select: {
-          fullName: true,
+          username: true,
         },
       },
     },
@@ -59,7 +62,7 @@ const getAllPublicPlaylistDetails = asyncHandler(async (req, res) => {
 
 const getPlaylistDetails = asyncHandler(async (req, res) => {
   const { plid } = req.params;
-  validId(plid, "Playlist");
+  // validId(plid, "Playlist");
   const playlist = await db.playlist.findUnique({
     where: {
       id: plid,
@@ -74,7 +77,7 @@ const getPlaylistDetails = asyncHandler(async (req, res) => {
   });
 
   if (!playlist) {
-    throw new ApiError("Problem not found in the playlist", 404);
+    throw new ApiError(400, "Problem not found in the playlist");
   }
   res
     .status(200)
@@ -102,7 +105,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
 
 const updatePlaylist = asyncHandler(async (req, res) => {
   const { plid } = req.params;
-  validId(plid, "Playlist");
+  // validId(plid, "Playlist");
   const { name, description, visibilty, type } = handleZodError(
     createPlaylistValidation(req.body),
   );
@@ -127,7 +130,7 @@ const updatePlaylist = asyncHandler(async (req, res) => {
 
 const deletePlaylist = asyncHandler(async (req, res) => {
   const { plid } = req.params;
-  validId(plid, "Playlist");
+  // validId(plid, "Playlist");
   const playlist = await db.playlist.delete({
     where: {
       id: plid,
@@ -140,7 +143,7 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 
 const clonePlaylist = asyncHandler(async (req, res) => {
   const { plid } = req.params;
-  validId(plid, "Playlist");
+  // validId(plid, "Playlist");
 
   const result = await db.$transaction(async (tx) => {
     const playListInfo = await tx.playlist.findUnique({
@@ -150,7 +153,7 @@ const clonePlaylist = asyncHandler(async (req, res) => {
     });
 
     if (!playListInfo) {
-      throw new ApiError("Playlist not found", 404);
+      throw new ApiError(404, "Playlist not found");
     }
 
     const getProblemsInPlaylist = await tx.problemInPlaylist.findMany({
@@ -190,8 +193,8 @@ const clonePlaylist = asyncHandler(async (req, res) => {
 
 const addProblemToPlaylist = asyncHandler(async (req, res) => {
   const { plid, pid } = req.params;
-  validId(plid, "Playlist");
-  validId(pid, "Problem");
+  // validId(plid, "Playlist");
+  // validId(pid, "Problem");
 
   const existingProblems = await db.problem.findFirst({
     where: {
@@ -201,8 +204,9 @@ const addProblemToPlaylist = asyncHandler(async (req, res) => {
   });
 
   if (!existingProblems) {
-    throw new ApiError("Problem not found", 404);
+    throw new ApiError(400, "Problem not found");
   }
+
   const existingPlaylist = await db.playlist.findFirst({
     where: {
       id: plid,
@@ -219,9 +223,11 @@ const addProblemToPlaylist = asyncHandler(async (req, res) => {
       problemId: pid,
     },
   });
+
   if (existingProblemInPlaylist) {
-    throw new ApiError("Problem already exists in the playlist", 409);
+    throw new ApiError(409, "Problem already exists in the playlist");
   }
+
   const addProblems = await db.problemInPlaylist.create({
     data: {
       playListId: plid,
@@ -242,8 +248,8 @@ const addProblemToPlaylist = asyncHandler(async (req, res) => {
 
 const removeProblemFromPlaylist = asyncHandler(async (req, res) => {
   const { plid, pid } = req.params;
-  validId(plid, "Playlist");
-  validId(pid, "Problem");
+  // validId(plid, "Playlist");
+  // validId(pid, "Problem");
 
   const existingProblems = await db.problem.findMany({
     where: {
@@ -253,7 +259,7 @@ const removeProblemFromPlaylist = asyncHandler(async (req, res) => {
   });
 
   if (existingProblems.length === 0) {
-    throw new ApiError("Problem not found", 404);
+    throw new ApiError(404, "Problem not found");
   }
   const deleteProblem = await db.problemInPlaylist.deleteMany({
     where: {
@@ -261,8 +267,9 @@ const removeProblemFromPlaylist = asyncHandler(async (req, res) => {
       problemId: pid,
     },
   });
+
   if (deleteProblem.count === 0) {
-    throw new ApiError("No problem found in the playlist", 404);
+    throw new ApiError(404, "No problem found in the playlist");
   }
 
   res
