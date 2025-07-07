@@ -24,7 +24,7 @@ const LoginPage = () => {
   const onSubmit = async (data) => {
     try {
       const result = await login(data);
-      
+          console.log("result..",result)
       if (result.success) {
         // Redirect to home page after successful login
         navigate("/", { replace: true });

@@ -122,14 +122,12 @@ const getProblemById = asyncHandler(async (req, res) => {
 
 const getAllProblems = asyncHandler(async (req, res) => {
   const problems = await db.problem.findMany({
-    select: {
-      id: true,
-      title: true,
-      description: true,
-      difficulty: true,
-      tags: true,
-      createdAt: true,
-      updatedAt: true,
+    include: {
+      SolvedBy: {
+        where: {
+          userId: req.user.id,
+        },
+      },
     },
   });
 

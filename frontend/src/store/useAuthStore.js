@@ -1,8 +1,8 @@
 import { create } from "zustand";
-import { axiosInstance } from "../utils/axios";
+import { axiosInstance } from "../utils/axios.js";
 import toast from "react-hot-toast";
 
-export const useAuthStore = create((set, get) => ({
+export const useAuthStore = create((set) => ({
   authUser: null,
   isSigningUp: false,
   isLoggingIn: false,
@@ -13,8 +13,8 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/auth/currentUser");
       // console.log("Check auth response:", res.data);
-      set({ authUser: res.data.user });
-      return res.data.user;
+      set({ authUser: res.data.data });
+      return res.data.data;
     } catch (error) {
       console.log("Error in checking auth:", error);
       // If token is invalid, clear auth state
@@ -30,21 +30,21 @@ export const useAuthStore = create((set, get) => ({
   signup: async (data) => {
     set({ isSigningUp: true }); // Fixed typo
     try {
-      // console.log("Signup data being sent:", data);
+      console.log("Signup data being sent:", data);
       // console.log(
       //   "Request URL:",
       //   axiosInstance.defaults.baseURL + "/auth/register"
       // );
 
       const res = await axiosInstance.post("/auth/register", data);
-
+      console.log("res.data..", res.data);
       // Note: Backend returns user data but doesn't set JWT cookie on registration
       // User needs to login after registration
       toast.success(
         res.data.message || "Registration successful! Please login."
       );
 
-      return { success: true, user: res.data.user };
+      return { success: true, user: res.data.data };
     } catch (error) {
       console.log("Error in signup:", error);
       console.log("Error status:", error.response?.status);
@@ -72,10 +72,11 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.post("/auth/login", data);
 
       // Backend sets JWT cookie and returns user data
-      set({ authUser: res.data.user });
+      // console.log("authUser", res.data.data);
+      set({ authUser: res.data.data });
       toast.success(res.data.message || "Login successful!");
 
-      return { success: true, user: res.data.user };
+      return { success: true, user: res.data.data };
     } catch (error) {
       console.log("Error in login:", error);
       console.log("Error status:", error.response?.status);

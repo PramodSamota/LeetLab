@@ -125,7 +125,7 @@ const register = asyncHandler(async (req, res) => {
 
 const verifyEmail = asyncHandler(async (req, res) => {
   const { token } = req.params;
-
+  console.log(token);
   if (!token) {
     throw new ApiError(404, "Token not get");
   }
