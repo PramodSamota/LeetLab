@@ -28,7 +28,24 @@ const createProblem = asyncHandler(async (req, res) => {
     referenceSolutions,
   } = handleZodError(validateCreateProblem(req.body));
 
-  console.log(difficulty);
+  // const {
+  //   title,
+  //   description,
+  //   difficulty,
+  //   tags,
+  //   examples,
+  //   constraints,
+  //   hints,
+  //   testcases,
+  //   codeSnippets,
+  //   referenceSolutions,
+  // } = req.body;
+
+  // console.log(difficulty);
+
+  console.log("examples", examples);
+  console.log("tags", tags);
+  console.log("testcases", testcases);
 
   const userRole = req.user.role;
 
@@ -57,7 +74,7 @@ const createProblem = asyncHandler(async (req, res) => {
       logger.error(`Invalid language: ${language}`);
       throw new ApiError(400, `Invalid language: ${language}`);
     }
-
+    console.log("tescases..", testcases);
     const submissions = testcases.map(({ input, output }) => {
       return {
         source_code: solutionCode,

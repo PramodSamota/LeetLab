@@ -18,35 +18,35 @@ import {
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { useProblemStore } from "../store/useProblemStore";
-// import { getLanguageId } from "../libs/utils";
-// import { useExecutionStore } from "../store/useExecution";
-// import { useSubmissionStore } from "../store/useSubmissionStore";
-// import Submission from "../components/Submission";
-// import SubmissionsList from "../components/SubmissionList";
+import { getLanguageId } from "../utils/getLanguageId";
+import { useExecutionStore } from "../store/useExecution";
+import { useSubmissionStore } from "../store/useSubmissionStore";
+import Submission from "../components/Submission";
+import SubmissionsList from "../components/SubmissionList";
 
 const ProblemPage = () => {
   const { id } = useParams();
   const { getProblemById, problem, isProblemLoading } = useProblemStore();
-//   const { submission:submissions, isLoading: isSubmissionsLoading, getSubmissionForProblem , getSubmissionCountForProblem , submissionCount } = useSubmissionStore();
+  const { submission:submissions, isLoading: isSubmissionsLoading, getSubmissionForProblem , getSubmissionCountForProblem , submissionCount } = useSubmissionStore();
   const [code, setCode] = useState("");
   const [activeTab, setActiveTab] = useState("description");
   const [selectedLanguage, setSelectedLanguage] = useState("javascript");
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [testCases, setTestCases] = useState([]);
+  const [testcases, settestcases] = useState([]);
 
-//   const { executeCode, submission, isExecuting } = useExecutionStore();
+  const { executeCode, submission, isExecuting } = useExecutionStore();
 
   useEffect(() => {
     getProblemById(id);
-    // getSubmissionCountForProblem(id);
+    getSubmissionCountForProblem(id);
 
   }, [id]);
 
   useEffect(() => {
     if (problem) {
       setCode(problem.codeSnippets?.[selectedLanguage] || submission?.sourceCode || "");
-      setTestCases(
-        problem.testCases?.map((tc) => ({
+      settestcases(
+        problem.testcases?.map((tc) => ({
           input: tc.input,
           output: tc.output,
         })) || []
@@ -58,6 +58,7 @@ const ProblemPage = () => {
     if (activeTab === "submissions" && id) {
       getSubmissionForProblem(id);
     }
+    console.log("i am in submissiond")
   }, [activeTab, id]);
 
   console.log("Submissions:", JSON.stringify(submissions));
@@ -72,8 +73,9 @@ const ProblemPage = () => {
     e.preventDefault();
     try {
       const language_id = getLanguageId(selectedLanguage);
-      const stdin = problem.testCases.map((tc) => tc.input);
-      const expected_outputs = problem.testCases.map((tc) => tc.output);
+      console.log("problem", problem);
+      const stdin = problem.testcases.map((tc) => tc.input);
+      const expected_outputs = problem.testcases.map((tc) => tc.output);
       executeCode(code, language_id, stdin, expected_outputs, id);
     } catch (error) {
       console.log("Error executing code", error);
@@ -311,6 +313,7 @@ const ProblemPage = () => {
           <div className="card-body">
             {submission ? (
               <Submission submission={submission} />
+              
             ) : (
               <>
                 <div className="flex items-center justify-between mb-6">
@@ -325,7 +328,7 @@ const ProblemPage = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {testCases.map((testCase, index) => (
+                      {testcases.map((testCase, index) => (
                         <tr key={index}>
                           <td className="font-mono">{testCase.input}</td>
                           <td className="font-mono">{testCase.output}</td>
