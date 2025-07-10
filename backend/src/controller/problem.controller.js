@@ -28,21 +28,6 @@ const createProblem = asyncHandler(async (req, res) => {
     referenceSolutions,
   } = handleZodError(validateCreateProblem(req.body));
 
-  // const {
-  //   title,
-  //   description,
-  //   difficulty,
-  //   tags,
-  //   examples,
-  //   constraints,
-  //   hints,
-  //   testcases,
-  //   codeSnippets,
-  //   referenceSolutions,
-  // } = req.body;
-
-  // console.log(difficulty);
-
   console.log("examples", examples);
   console.log("tags", tags);
   console.log("testcases", testcases);
@@ -62,44 +47,85 @@ const createProblem = asyncHandler(async (req, res) => {
     throw new ApiError(409, "Problem already exists");
   }
 
-  const solutionEntries = Object.entries(referenceSolutions);
+  // const solutionEntries = Object.entries(referenceSolutions);
 
-  for (const [language, solutionCode] of solutionEntries) {
-    // console.log("solutionCode::", solutionCode);
+  // for (const [language, solutionCode] of solutionEntries) {
+  //   // console.log("solutionCode::", solutionCode);
+  //   const languageId = getJudge0LanguageById(language);
+
+  //   console.log("languageId", languageId);
+
+  //   if (!languageId) {
+  //     logger.error(`Invalid language: ${language}`);
+  //     throw new ApiError(400, `Invalid language: ${language}`);
+  //   }
+  //   console.log("tescases..", testcases);
+  //   const submissions = testcases.map(({ input, output }) => {
+  //     return {
+  //       source_code: solutionCode,
+  //       language_id: languageId,
+  //       stdin: input,
+  //       expected_output: output,
+  //     };
+  //   });
+  //   console.log("submissions :", submissions);
+  //   const tokens = await submitBatch(submissions);
+  //   console.log("tokens :", tokens);
+
+  //   const results = await pollBatchResult(tokens);
+  //   console.log("results :", results);
+
+  //   for (let i = 0; i < results.length; i++) {
+  //     const result = results[i];
+
+  //     if (result.status.id !== 3) {
+  //       logger.error(`Submission ${i + 1} failed:${result.status.description}`);
+  //       throw new ApiError(400, `Submission ${i + 1}`);
+  //     }
+  //   }
+  // }
+
+  for (const [language, solutionCode] of Object.entries(referenceSolutions)) {
+    // Step 2.1: Get Judge0 language ID for the current language
     const languageId = getJudge0LanguageById(language);
-
-    console.log("languageId", languageId);
-
     if (!languageId) {
-      logger.error(`Invalid language: ${language}`);
-      throw new ApiError(400, `Invalid language: ${language}`);
+      return res
+        .status(400)
+        .json({ error: `Unsupported language: ${language}` });
     }
-    console.log("tescases..", testcases);
-    const submissions = testcases.map(({ input, output }) => {
-      return {
-        source_code: solutionCode,
-        language_id: languageId,
-        stdin: input,
-        expected_output: output,
-      };
-    });
-    // console.log("submissions :", submissions);
-    const tokens = await submitBatch(submissions);
-    // console.log("tokens :", tokens);
 
+    // Step 2.2: Prepare Judge0 submissions for all test cases
+    const submissions = testcases.map(({ input, output }) => ({
+      source_code: solutionCode,
+      language_id: languageId,
+      stdin: input,
+      expected_output: output,
+    }));
+
+    console.log("Submissions:", submissions);
+
+    // TODO: CONVERT SUBMISSION TO CHUNKS OF 20
+
+    // Step 2.3: Submit all test cases in one batch
+    const submissionResults = await submitBatch(submissions);
+
+    // Step 2.4: Extract tokens from response
+    const tokens = submissionResults.map((res) => res.token);
+    console.log("tokens..", tokens);
+    // Step 2.5: Poll Judge0 until all submissions are done
     const results = await pollBatchResult(tokens);
-    console.log("results :", results);
-
+    console.log("results..:", results);
+    // Step 2.6: Validate that each test case passed (status.id === 3)
     for (let i = 0; i < results.length; i++) {
       const result = results[i];
-
       if (result.status.id !== 3) {
-        logger.error(`Submission ${i + 1} failed:${result.status.description}`);
-        throw new ApiError(400, `Submission ${i + 1}`);
+        return res.status(400).json({
+          error: `Validation failed for ${language} on input: ${submissions[i].stdin}`,
+          details: result,
+        });
       }
     }
   }
-
   const newProblem = await db.problem.create({
     data: {
       title,

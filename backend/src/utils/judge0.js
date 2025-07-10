@@ -34,7 +34,7 @@ export const pollBatchResult = async (tokens) => {
         `${env.JUDGE0_API_URL}/submissions/batch`,
         {
           params: {
-            tokens: tokens.map((t) => t.token).join(","),
+            tokens: tokens.join(","),
             base64_encoded: false,
           },
 
@@ -43,7 +43,7 @@ export const pollBatchResult = async (tokens) => {
           },
         },
       );
-
+      console.log("data..", data);
       const results = data.submissions;
       const isAllDone = results.every(
         (res) => res.status.id !== 1 && res.status.id !== 2,

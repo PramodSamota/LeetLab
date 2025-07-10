@@ -8,35 +8,18 @@ import {
 } from "lucide-react";
 
 const SubmissionsList = ({ submissions, isLoading }) => {
-  // Helper function to safely parse JSON strings
-  const safeParse = (data) => {
-    try {
-      return JSON.parse(data);
-    } catch (error) {
-      console.error("Error parsing data:", error);
-      return [];
-    }
-  };
 
-  // Helper function to calculate average memory usage
-  const calculateAverageMemory = (memoryData) => {
-    const memoryArray = safeParse(memoryData).map((m) =>
-      parseFloat(m.split(" ")[0])
-    );
-    if (memoryArray.length === 0) return 0;
-    return (
-      memoryArray.reduce((acc, curr) => acc + curr, 0) / memoryArray.length
-    );
-  };
-
-  // Helper function to calculate average runtime
-  const calculateAverageTime = (timeData) => {
-    const timeArray = safeParse(timeData).map((t) =>
-      parseFloat(t.split(" ")[0])
-    );
-    if (timeArray.length === 0) return 0;
-    return timeArray.reduce((acc, curr) => acc + curr, 0) / timeArray.length;
-  };
+  console.log("submissions :",submissions)
+  // // Helper function to safely parse JSON strings
+  // const safeParse = (data) => {
+  //   try {
+  //     return JSON.parse(data);
+  //   } catch (error) {
+  //     console.error("Error parsing data:", error);
+  //     return [];
+  //   }
+  // };
+ 
 
   // Loading state
   if (isLoading) {
@@ -59,8 +42,8 @@ const SubmissionsList = ({ submissions, isLoading }) => {
   return (
     <div className="space-y-4">
       {submissions.map((submission) => {
-        const avgMemory = calculateAverageMemory(submission.memory);
-        const avgTime = calculateAverageTime(submission.time);
+        const avgMemory = (submission.memory);
+        const avgTime = (submission.time);
 
         return (
           <div
@@ -89,11 +72,11 @@ const SubmissionsList = ({ submissions, isLoading }) => {
                 <div className="flex items-center gap-4 text-base-content/70">
                   <div className="flex items-center gap-1">
                     <Clock className="w-4 h-4" />
-                    <span>{avgTime.toFixed(3)} s</span>
+                    <span>{avgTime} s</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Memory className="w-4 h-4" />
-                    <span>{avgMemory.toFixed(0)} KB</span>
+                    <span>{avgMemory} KB</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Calendar className="w-4 h-4" />

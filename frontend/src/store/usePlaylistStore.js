@@ -34,7 +34,7 @@ export const usePlaylistStore = create((set, get) => ({
   getAllPlaylists: async () => {
     try {
       set({ isLoading: true });
-      const response = await axiosInstance.get("/playlist/public-playlist");
+      const response = await axiosInstance.get("/playlist/private-playlist");
       console.log("playlists,,", response.data.data);
       set({ playlists: response.data.data });
     } catch (error) {

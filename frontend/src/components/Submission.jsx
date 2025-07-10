@@ -8,13 +8,9 @@ const SubmissionResults = ({ submission }) => {
   const timeArr = JSON.parse(submission.time || '[]');
  
   // Calculate averages
-  const avgMemory = memoryArr
-    .map(m => parseFloat(m)) // remove ' KB' using parseFloat
-    .reduce((a, b) => a + b, 0) / memoryArr.length;
+  const avgMemory = memoryArr;
 
-  const avgTime = timeArr
-    .map(t => parseFloat(t)) // remove ' s' using parseFloat
-    .reduce((a, b) => a + b, 0) / timeArr.length;
+  const avgTime = timeArr;
 
   const passedTests = submission.testCases.filter(tc => tc.passed).length;
   const totalTests = submission.testCases.length;

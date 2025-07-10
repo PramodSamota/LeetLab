@@ -7,6 +7,7 @@ import {
   submitBatch,
 } from "../utils/judge0.js";
 import { testcaseSchema } from "../validator/problem.validate.js";
+
 const ExecutionTypeEnum = {
   RUN: "run",
   SUMBMIT: "submit",
@@ -14,9 +15,11 @@ const ExecutionTypeEnum = {
 
 const executeCode = asyncHandler(async (req, res) => {
   let { source_code, language, stdin = [] } = req.body;
-
+  // console.log("req.body", req.body);
   const userId = req.user.id;
   const { pid, type } = req.params;
+  // console.log("pid..", pid);
+  // console.log("req.params", req.params);
 
   if (type !== ExecutionTypeEnum.RUN && type !== ExecutionTypeEnum.SUMBMIT) {
     return new ApiError(400, "Invalid execution type");
@@ -31,7 +34,9 @@ const executeCode = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Please verify your email before executing code");
   }
 
+  console.log("language", language);
   const language_id = getJudge0LanguageById(language);
+  console.log("language_id", language_id);
 
   // get testcases and refrence_code for this problem form db
   const inputs = await db.problem.findUnique({
@@ -42,7 +47,7 @@ const executeCode = asyncHandler(async (req, res) => {
     },
   });
 
-  //   console.log("inputs:::", inputs);
+  console.log("inputs:::", inputs);
   const safeTestCases = testcaseSchema.safeParse(inputs?.testcases);
 
   if (!safeTestCases.success) {
@@ -86,11 +91,11 @@ const executeCode = asyncHandler(async (req, res) => {
   }));
 
   //send batch to judge0
-  //   console.log("submisssions..", submisssions);
+  console.log("submisssions..", submisssions);
   const submitResponse = await submitBatch(submisssions);
 
-  const tokens = submitResponse.map((res) => ({ token: res.token }));
-
+  const tokens = submitResponse.map((res) => res.token);
+  console.log("tokens..", tokens);
   const results = await pollBatchResult(tokens);
 
   //check the results form juge0 output and expected output is ===

@@ -5,6 +5,7 @@ import LoginPage from "./pages/LoginPage.jsx";
 import ProblemPage from './pages/ProblemPage.jsx';
 import AddProblem from './pages/AddProblem.jsx';
 import SignUpPage from "./pages/SignUpPage.jsx";
+import Profile from './pages/Profile.jsx';
 import AdminRoute from './components/AdminRoute.jsx';
 import { useAuthStore } from './store/useAuthStore.js';
 import { Loader } from "lucide-react";
@@ -65,10 +66,10 @@ const App = () => {
           />
         </Route>
 
-        {/* <Route
+        <Route
           path="/profile"
           element={authUser ? <Profile /> : <Navigate to="/login" />}
-        /> */}
+        />
       </Routes>
     </div>
   );

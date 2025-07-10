@@ -11,6 +11,8 @@ const PlaylistProfile = () => {
     getAllPlaylists();
   }, [getAllPlaylists]);
 
+  console.log("playlists",playlists);
+  
   const togglePlaylist = (id) => {
     if (expandedPlaylist === id) {
       setExpandedPlaylist(null);

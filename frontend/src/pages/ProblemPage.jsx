@@ -72,11 +72,11 @@ const ProblemPage = () => {
   const handleRunCode = (e) => {
     e.preventDefault();
     try {
-      const language_id = getLanguageId(selectedLanguage);
-      console.log("problem", problem);
+      // const language_id = getLanguageId(selectedLanguage);
+      console.log("selectedLanguage", selectedLanguage);
       const stdin = problem.testcases.map((tc) => tc.input);
       const expected_outputs = problem.testcases.map((tc) => tc.output);
-      executeCode(code, language_id, stdin, expected_outputs, id);
+      executeCode(code,stdin, expected_outputs, id,selectedLanguage);
     } catch (error) {
       console.log("Error executing code", error);
     }
